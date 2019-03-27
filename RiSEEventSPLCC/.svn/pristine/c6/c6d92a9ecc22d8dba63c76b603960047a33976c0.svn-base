@@ -1,0 +1,736 @@
+package rise.splcc.ui2;
+
+
+import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import rise.splcc.data.Activity;
+//#if ${InsertAuthors} == "T"
+import rise.splcc.data.Author;
+//#endif
+//#if ${SubmissionParcial} == "T" or ${SubmissionCompleta} == "T"
+import rise.splcc.data.Submission;
+//#endif
+import rise.splcc.data.User;
+//#if ${SubmissionParcial} == "T" or ${SubmissionCompleta} == "T"
+import rise.splcc.data.Submission.TypeSubmission;
+//#endif
+//#if ${InsertAuthors} == "T"
+import rise.splcc.data.SubmissionAuthor;
+//#endif
+import rise.splcc.data.SubmissionUser;
+//#if ${InsertAuthors} == "T"
+import rise.splcc.exception.AuthorAlreadyInsertedException;
+//#endif
+import rise.splcc.exception.RepositoryException;
+//#if ${SubmissionParcial} == "T" or ${SubmissionCompleta} == "T"
+import rise.splcc.exception.SubmissionAlreadyInsertedException;
+//#endif
+//#if ${InsertAuthors} == "T"
+import rise.splcc.exception.SubmissionAuthorAlreadyInsertedException;
+//#endif
+//#if ${SubmissionParcial} == "T" or ${SubmissionCompleta} == "T"
+import rise.splcc.exception.SubmissionNotFoundException;
+import rise.splcc.exception.SubmissionUserAlreadyInsertedException;
+import rise.splcc.table.SubmissionTableModel;
+//#endif
+
+
+public class SubmissionManagementScreenP extends JInternalFrame{
+
+	private static SubmissionManagementScreenP instanceSubmissionManagementScreenP;
+	private JTextField textFieldAbstract;
+	private JTextField textFieldKeywords;
+	private JPanel contentPane;
+	private JTable table;
+	private JScrollPane scrollPane;
+	
+	static private String newline = "\n";
+    private JTextArea log;
+    private JFileChooser fc;
+	
+	JComboBox<String> comboBoxActivity;
+	JComboBox<String> typeComboBox;
+	
+	JButton btnInsert;
+	JButton btnRemove;
+	JButton btnSelect;
+	JButton btnClean;
+	JButton btnBack;
+	JButton btnNewAuthor;
+	
+	JLabel lblIdAuthor;
+	
+	JLabel lblLastSubmissionId;
+	private JLabel lblUserId;
+	private JLabel lblIdUserLogado;
+	private JButton btnAttach;
+	private JTextField textFieldauthorName;
+	private JTextField textFieldFiliation;
+	private JTextField textFieldEmail;
+	private JLabel lblTitle;
+	private JTextField textFieldTitle;
+	
+	//Retirada de login
+	private JComboBox comboBoxUser;
+	
+
+	 public static SubmissionManagementScreenP getInstanceSubmissionManagementScreenP() {
+		 if (instanceSubmissionManagementScreenP == null) {
+			 SubmissionManagementScreenP.instanceSubmissionManagementScreenP = new SubmissionManagementScreenP();
+		 }
+		 return SubmissionManagementScreenP.instanceSubmissionManagementScreenP;
+	 }
+	 
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					SubmissionManagementScreenP frame = new SubmissionManagementScreenP();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public SubmissionManagementScreenP() {
+		
+		InsertButtonAction insertAction = new InsertButtonAction(); 
+		RemoveButtonAction removeAction = new RemoveButtonAction();
+		SelectButtonAction selectAction = new SelectButtonAction(); 
+		CleanButtonAction cleanAction = new CleanButtonAction();
+		BackButtonAction backAction = new BackButtonAction();
+		SelectTypeComboboxAction selectTypeAction = new SelectTypeComboboxAction();
+		InsertNewAuthorButtonAction insertNewAuthorAction = new InsertNewAuthorButtonAction();
+		AttachButtonAction attachAction  = new AttachButtonAction();
+		
+		//Retirada de Login
+		SelectComboUserAction selectUserAction = new SelectComboUserAction();
+		
+		setTitle("Submission Management");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 841, 513);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(220, 18, 392, 68);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblImage = new JLabel("");
+		lblImage.setBounds(6, 6, 380, 56);
+		ImageIcon image = new ImageIcon(getClass().getResource("/images/riseLabs.png"));
+		Image imag = image.getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH);
+		lblImage.setIcon(new ImageIcon(imag));
+		panel.add(lblImage);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBounds(6, 99, 829, 189);
+		contentPane.add(panel_1);
+		panel_1.setLayout(null);
+		
+		JLabel lblSubmissionId = new JLabel("Submission Id:");
+		lblSubmissionId.setBounds(6, 6, 104, 16);
+		panel_1.add(lblSubmissionId);
+		
+		lblLastSubmissionId = new JLabel("");
+		lblLastSubmissionId.setBounds(112, 6, 61, 16);
+		panel_1.add(lblLastSubmissionId);
+		
+		JLabel lblActivityId = new JLabel("Activity Name:");
+		lblActivityId.setBounds(6, 38, 104, 16);
+		panel_1.add(lblActivityId);
+		
+		comboBoxActivity = new JComboBox<String>();
+		comboBoxActivity.setBounds(111, 34, 257, 27);
+		panel_1.add(comboBoxActivity);
+		
+		JLabel lblType = new JLabel("Submission Type:");
+		lblType.setBounds(380, 38, 126, 16);
+		panel_1.add(lblType);
+		
+		JLabel lblAbstract = new JLabel("Abstract:");
+		lblAbstract.setBounds(6, 103, 76, 16);
+		panel_1.add(lblAbstract);
+		
+		typeComboBox = new JComboBox<String>();
+		typeComboBox.setBounds(495, 34, 134, 27);
+		panel_1.add(typeComboBox);
+		
+		JLabel lblKeywords = new JLabel("Keywords:");
+		lblKeywords.setBounds(6, 142, 84, 16);
+		panel_1.add(lblKeywords);
+		
+		textFieldKeywords = new JTextField();
+		textFieldKeywords.setBounds(80, 136, 257, 28);
+		panel_1.add(textFieldKeywords);
+		textFieldKeywords.setColumns(10);
+		
+		lblUserId = new JLabel("User Id");
+		lblUserId.setBounds(151, 6, 61, 16);
+		panel_1.add(lblUserId);
+		
+		lblIdUserLogado = new JLabel("");
+		lblIdUserLogado.setBounds(205, 6, 61, 16);
+		panel_1.add(lblIdUserLogado);
+		
+		btnAttach = new JButton("Attach");
+		btnAttach.setBounds(658, 33, 117, 29);
+		panel_1.add(btnAttach);
+		
+		JLabel label = new JLabel("Author Name:");
+		label.setBounds(358, 73, 87, 16);
+		panel_1.add(label);
+		
+		textFieldauthorName = new JTextField();
+		textFieldauthorName.setColumns(10);
+		textFieldauthorName.setBounds(444, 66, 226, 27);
+		panel_1.add(textFieldauthorName);
+		
+		JLabel label_1 = new JLabel("Author Id:");
+		label_1.setBounds(668, 72, 76, 16);
+		panel_1.add(label_1);
+		
+		lblIdAuthor = new JLabel("0");
+		lblIdAuthor.setBounds(759, 72, 61, 16);
+		panel_1.add(lblIdAuthor);
+		
+		textFieldFiliation = new JTextField();
+		textFieldFiliation.setColumns(10);
+		textFieldFiliation.setBounds(444, 105, 210, 27);
+		panel_1.add(textFieldFiliation);
+		
+		JLabel label_3 = new JLabel("Filiation:");
+		label_3.setBounds(384, 111, 61, 16);
+		panel_1.add(label_3);
+		
+		JLabel label_4 = new JLabel("Email:");
+		label_4.setBounds(380, 148, 61, 16);
+		panel_1.add(label_4);
+		
+		textFieldEmail = new JTextField();
+		textFieldEmail.setColumns(10);
+		textFieldEmail.setBounds(442, 144, 268, 27);
+		panel_1.add(textFieldEmail);
+		
+		btnNewAuthor = new JButton("Insert New Author");
+		btnNewAuthor.setBounds(663, 107, 141, 27);
+		panel_1.add(btnNewAuthor);
+		
+		textFieldAbstract = new JTextField();
+		textFieldAbstract.setBounds(70, 97, 257, 28);
+		panel_1.add(textFieldAbstract);
+		textFieldAbstract.setColumns(10);
+		
+		lblTitle = new JLabel("Title:");
+		lblTitle.setBounds(6, 73, 61, 16);
+		panel_1.add(lblTitle);
+		
+		textFieldTitle = new JTextField();
+		textFieldTitle.setBounds(53, 66, 274, 27);
+		panel_1.add(textFieldTitle);
+		textFieldTitle.setColumns(10);
+		//Retirada de login
+		comboBoxUser = new JComboBox();
+		comboBoxUser.setBounds(224, 2, 144, 27);
+		panel_1.add(comboBoxUser);
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(6, 327, 829, 158);
+		contentPane.add(panel_2);
+		panel_2.setLayout(null);
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(6, 6, 817, 146);
+		panel_2.add(scrollPane);
+		
+		table = new JTable();
+		scrollPane.setViewportView(table);
+		
+		btnInsert = new JButton("Insert");
+		btnInsert.setBounds(6, 300, 117, 29);
+		contentPane.add(btnInsert);
+		
+		btnRemove = new JButton("Remove");
+		btnRemove.setBounds(146, 300, 117, 29);
+		contentPane.add(btnRemove);
+		
+		btnSelect = new JButton("Selection");
+		btnSelect.setBounds(421, 300, 117, 29);
+		contentPane.add(btnSelect);
+		
+		btnClean = new JButton("Clean");
+		btnClean.setBounds(562, 300, 117, 29);
+		contentPane.add(btnClean);
+		
+		btnBack = new JButton("Back");
+		btnBack.setBounds(691, 300, 117, 29);
+		contentPane.add(btnBack);
+		
+		btnInsert.addActionListener(insertAction);
+		btnRemove.addActionListener(removeAction);
+		btnSelect.addActionListener(selectAction);
+		btnClean.addActionListener(cleanAction);
+		btnBack.addActionListener(backAction);
+		typeComboBox.addActionListener(selectTypeAction);
+		btnNewAuthor.addActionListener(insertNewAuthorAction);
+		btnAttach.addActionListener(attachAction);
+		
+		// Retirada de Login
+		comboBoxUser.addActionListener(selectUserAction);
+		//Retirada Login
+	    carregarComboUser();
+		
+		loadLastIndex();
+		
+		carregarComboBoxTipo();
+		carregarComboBoxActivity();
+		
+		//retirada de login
+		//pegarUsuarioLogado();
+		
+		populateTable();
+		
+		
+	}
+	
+	//Retirada Login
+			private void carregarComboUser(){
+				try {
+					List<User> list;
+					list = RiSEEventMainScreenP.facade.getUsers();
+					Iterator<User> iterator = list.iterator();
+					while(iterator.hasNext()){
+						comboBoxUser.addItem(iterator.next().getNameUser());
+					}
+				} catch (RepositoryException e) {
+					JOptionPane.showMessageDialog(getContentPane(),
+							e.toString(), "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+					e.printStackTrace();
+				}
+				
+			}
+			//Retirada de login
+			private class SelectComboUserAction  implements ActionListener{ 
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					
+					try {
+						String nameUser = comboBoxUser.getSelectedItem().toString();
+						lblIdUserLogado.setText(String.valueOf(RiSEEventMainScreenP.facade.getUserIdByName(nameUser)));
+					} catch (RepositoryException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					}
+					
+				}
+			}
+	
+	private void loadLastIndex(){
+		try {
+			lblLastSubmissionId.setText(String.valueOf(RiSEEventMainScreenP.facade.getSubmissionLastId()));
+		} catch (RepositoryException e) {
+			JOptionPane.showMessageDialog(getContentPane(),
+					e.toString(), "Erro",
+					JOptionPane.INFORMATION_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+	//retirada de login
+//	private void pegarUsuarioLogado(){
+//		lblIdUserLogado.setText(String.valueOf(RiSEEventLoginScreen.usuarioLogado.getIdUser()));
+//	}
+	
+	private void carregarComboBoxTipo(){
+		TypeSubmission[] types = TypeSubmission.values();
+		List<String> typessubmissions = new ArrayList<String>();
+		for(int i=0; i<types.length; i++){
+			typessubmissions.add(i, types[i].name());
+			typeComboBox.addItem(types[i].name());
+		}
+		
+	}
+	
+	private void carregarComboBoxActivity(){
+		try {
+			List<Activity> list = RiSEEventMainScreenP.facade.getActivities();
+			Iterator<Activity> iterator = list.iterator();
+			while(iterator.hasNext()){
+				comboBoxActivity.addItem(iterator.next().getNameActivity());
+			}
+		} catch (RepositoryException e) {
+			JOptionPane.showMessageDialog(getContentPane(),
+					e.toString(), "Erro",
+					JOptionPane.INFORMATION_MESSAGE);
+			e.printStackTrace();
+		}	
+	}
+	
+	private void populateTable(){
+		try {
+			SubmissionTableModel model;
+			model = new SubmissionTableModel(RiSEEventMainScreenP.facade.getSubmissions());
+			table.setModel(model);
+		} catch (RepositoryException e) {
+			JOptionPane.showMessageDialog(getContentPane(),
+					e.toString(), "Erro",
+					JOptionPane.INFORMATION_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+	
+	private void cleanFields() {
+		textFieldKeywords.setText("");
+		textFieldAbstract.setText("");
+		btnInsert.setEnabled(true);
+	}
+	
+	private class SelectTypeComboboxAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(typeComboBox.getSelectedItem().toString().equals("Parcial")){
+				btnAttach.setEnabled(false);
+			}else{
+				btnAttach.setEnabled(true);
+			}
+		}
+	}
+	
+	private void loadLastAuthorIndex(){
+		try {
+			lblIdAuthor.setText(String.valueOf(RiSEEventMainScreenP.facade.getAuthorLastId()));
+		} catch (RepositoryException e) {
+			JOptionPane.showMessageDialog(getContentPane(),
+					e.toString(), "Erro",
+					JOptionPane.INFORMATION_MESSAGE);
+			e.printStackTrace();
+		}
+	}
+	private class InsertNewAuthorButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//clearAuthorFields();
+			loadLastAuthorIndex();
+			
+			Author author = new Author();
+			
+			String nameAuthor = textFieldauthorName.getText();
+			String filiation = textFieldFiliation.getText();
+			String email = textFieldEmail.getText();
+			
+			if ( nameAuthor.equals(" ") || filiation.equals(" ") || email.equals(" ")) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Não pode haver campo vazio.", "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}else{
+				try {
+				author.setName(nameAuthor);
+				author.setFiliation(filiation);
+				author.setEmail(email);
+				//Insere na tabela de authors
+				RiSEEventMainScreenP.facade.insertAuthor(author);
+				
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Author inserido com sucesso", "Sucesso",
+						JOptionPane.INFORMATION_MESSAGE);
+				
+				
+				} catch (AuthorAlreadyInsertedException e1) {
+					JOptionPane.showMessageDialog(getContentPane(),
+							e1.toString(), "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+					e1.printStackTrace();
+				} catch (RepositoryException e1) {
+					JOptionPane.showMessageDialog(getContentPane(),
+							e1.toString(), "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+					e1.printStackTrace();
+				} 
+			}
+		}
+	}
+	
+	//INSERINDO UMA SUBMISSION
+	private class InsertButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			Submission submission = null;
+			
+			String nameActivity = comboBoxActivity.getSelectedItem().toString();
+			String type = typeComboBox.getSelectedItem().toString();
+			String title = textFieldTitle.getText();
+			String abstractPaper = textFieldAbstract.getText();
+			String keywords = textFieldKeywords.getText();
+			
+			if ( type.equals("") || title.equals("") || abstractPaper.equals("") || keywords.equals("")) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Não pode haver campo vazio.", "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}else{
+					try {
+						submission = new Submission();
+						submission.setIdSubmission(Integer.valueOf(lblLastSubmissionId.getText()));
+						submission.setAbstractPaper(abstractPaper);
+						submission.setIdActivity(RiSEEventMainScreenP.facade.getActivityIdByName(nameActivity));
+						submission.setKeywords(keywords);
+						submission.setTitle(title);
+						submission.setType(TypeSubmission.valueOf(type));
+						
+						SubmissionTableModel model = new SubmissionTableModel(RiSEEventMainScreenP.facade.getSubmissions());	
+						model.addSubmission(submission);
+						table.setModel(model);
+						
+						//Inserir na tabela de submissao
+						//estamos inserindo com o update pq usamos o insert para colocar o pdf no banco, attahcment com outros campos vazios,
+						// quando o submit é pressionado um update é feito com os valores da submission, substituindo os que estao em branco. 
+						
+						if(typeComboBox.getSelectedItem().toString().equals("Parcial"))
+							RiSEEventMainScreenP.facade.insertSubmission(submission);
+						if(typeComboBox.getSelectedItem().toString().equals("Completa"))
+							RiSEEventMainScreenP.facade.updateSubmission(submission);
+						
+						
+						//Inserir na tabela de submissionUSER
+						//retirada tela login
+						//int idUsuario = RiSEEventLoginScreen.usuarioLogado.getIdUser();
+						//retirada tela login
+						int idUsuario = Integer.valueOf(lblIdUserLogado.getText());
+						SubmissionUser submissionUser = new SubmissionUser();
+						submissionUser.setIdUser(idUsuario);
+						submissionUser.setIdSubmission(Integer.valueOf(lblLastSubmissionId.getText()));
+						submissionUser.setIdActivity(RiSEEventMainScreenP.facade.getActivityIdByName(nameActivity));
+						RiSEEventMainScreenP.facade.insertSubmissionUser(submissionUser);
+						
+						//Inserir na tabela de submissionAUTHORS
+						SubmissionAuthor submissionAuthor = new SubmissionAuthor();
+						//retirada tela login
+						//int idCorrespondingAuthor = RiSEEventLoginScreen.usuarioLogado.getIdUser();
+						//retirada tela login
+						int idCorrespondingAuthor = Integer.valueOf(lblIdUserLogado.getText());
+						submissionAuthor.setIdAuthor(idCorrespondingAuthor);
+						submissionAuthor.setIdSubmission(Integer.valueOf(lblLastSubmissionId.getText()));
+						submissionAuthor.setIdActivity(RiSEEventMainScreenP.facade.getActivityIdByName(comboBoxActivity.getSelectedItem().toString()));
+						RiSEEventMainScreenP.facade.insertSubmissionAuthor(submissionAuthor);
+						
+						JOptionPane.showMessageDialog(getContentPane(),
+								"Submission inserida com sucesso", "Sucesso",
+								JOptionPane.INFORMATION_MESSAGE);
+						
+
+					} catch (SubmissionAlreadyInsertedException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					} catch (RepositoryException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					} catch (SubmissionUserAlreadyInsertedException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					} catch (SubmissionAuthorAlreadyInsertedException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					} catch (SubmissionNotFoundException e1) {
+						JOptionPane.showMessageDialog(getContentPane(),
+								e1.toString(), "Erro",
+								JOptionPane.INFORMATION_MESSAGE);
+						e1.printStackTrace();
+					} 
+
+
+				}
+		
+		}
+	}
+	
+	private class AttachButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//FileChooser.getInstanceFileChooserDemo2().setVisible(true);
+			
+			 //Set up the file chooser.
+	        if (fc == null) {
+	            fc = new JFileChooser();
+
+		    //Add a custom file filter and disable the default
+		    //(Accept All) file filter.
+
+	            fc.setAcceptAllFileFilterUsed(true);
+	        }
+
+	        //Show it.
+	        int returnVal = fc.showDialog(SubmissionManagementScreenP.this,
+	                                      "Attach");
+
+	        //Process the results.
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+//	            log.append("Attaching file: " + file.getName()
+//	                       + "." + newline);
+	            
+	            try {
+	            	//byte[] b = new byte[(int)file.length()];
+	            	int idActivity = RiSEEventMainScreenP.facade.getActivityIdByName(comboBoxActivity.getSelectedItem().toString());
+					RiSEEventMainScreenP.facade.insertAttachment(file,idActivity);
+					JOptionPane.showMessageDialog(getContentPane(),
+							"Artigo inserido com sucesso", "Sucesso",
+							JOptionPane.INFORMATION_MESSAGE);
+				} catch (RepositoryException e1) {
+					JOptionPane.showMessageDialog(getContentPane(),
+							e1.toString(), "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+					e1.printStackTrace();
+				} catch (SubmissionAlreadyInsertedException e1) {
+					JOptionPane.showMessageDialog(getContentPane(),
+							e1.toString(), "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+					e1.printStackTrace();
+				};
+	        } else {
+	            log.append("Attachment cancelled by user." + newline);
+	        }
+	        //log.setCaretPosition(log.getDocument().getLength());
+
+	        //Reset the file chooser for the next time it's shown.
+	        fc.setSelectedFile(null);
+	    }
+
+	}
+	
+	private class RemoveButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int rowIndex = table.getSelectedRow();
+			
+			if(rowIndex == -1){
+				JOptionPane.showMessageDialog(getContentPane(),
+						"Selecione a Subimissão a ser removida!");
+				return;
+			}
+			
+			try {
+				Submission submission = new SubmissionTableModel(RiSEEventMainScreenP.facade.getSubmissions()).get(rowIndex);
+				RiSEEventMainScreenP.facade.removeSubmission(submission.getIdSubmission());
+				SubmissionTableModel model = (SubmissionTableModel) table.getModel();
+				model.removeSubmission(rowIndex);
+				table.setModel(model);
+				
+				cleanFields();
+
+			} catch (SubmissionNotFoundException e1) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						e1.toString(), "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				e1.printStackTrace();
+			} catch (RepositoryException e1) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						e1.toString(), "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				e1.printStackTrace();
+			} catch (SubmissionAlreadyInsertedException e1) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						e1.toString(), "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				e1.printStackTrace();
+			}
+			
+		}
+	}
+	
+	private class SelectButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			int rowIndex = table.getSelectedRow();
+			Submission submissionOld = null;
+
+			try {
+				submissionOld=  new SubmissionTableModel(RiSEEventMainScreenP.facade.getSubmissions()).get(rowIndex);
+			
+				lblLastSubmissionId.setText(String.valueOf(submissionOld.getIdSubmission()));
+				comboBoxActivity.setSelectedItem(submissionOld.getIdActivity());
+				typeComboBox.setSelectedItem(submissionOld.getType());
+				textFieldAbstract.setText(submissionOld.getAbstractPaper());
+				textFieldKeywords.setText(submissionOld.getKeywords());
+				
+			} catch (RepositoryException ex) {
+				JOptionPane.showMessageDialog(getContentPane(),
+						ex.toString(), "Erro",
+						JOptionPane.INFORMATION_MESSAGE);
+				ex.printStackTrace();
+			}
+			
+		}
+	}
+	
+	private class CleanButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		cleanFields();
+		loadLastIndex();
+			
+		}
+	}
+	
+	private class BackButtonAction  implements ActionListener{ 
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+		dispose();
+		SubmissionManagementScreenP.instanceSubmissionManagementScreenP = null;
+		}
+	}
+}

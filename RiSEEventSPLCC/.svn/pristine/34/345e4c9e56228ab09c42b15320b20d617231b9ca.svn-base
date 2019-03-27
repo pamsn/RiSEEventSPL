@@ -1,0 +1,181 @@
+package rise.splcc.ui2;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import rise.splcc.data.User;
+import rise.splcc.exception.RepositoryException;
+import rise.splcc.exception.UserAlreadyInsertedException;
+import rise.splcc.exception.UserNotFoundException;
+import rise.splcc.facade.RiSEventFacade;
+
+
+public class RiSEEventLoginScreen extends JFrame {
+	
+	private static RiSEEventLoginScreen instanceRiSEEventLoginScreen; //PAULO
+	public static User usuarioLogado;
+	
+	public static RiSEventFacade facade;//PAULO
+
+	private JPanel contentPane;//PAULO
+	private JTextField logintextField;//PAULO
+	private JPasswordField passwordField;//PAULO
+	
+	
+	public static RiSEEventLoginScreen getInstanceRiSEEventLoginScreen() {//PAULO
+		if (instanceRiSEEventLoginScreen == null) {//PAULO
+			RiSEEventLoginScreen.instanceRiSEEventLoginScreen = new RiSEEventLoginScreen();//PAULO
+		}//PAULO
+		return RiSEEventLoginScreen.instanceRiSEEventLoginScreen;//PAULO
+	}//PAULO
+	
+	public static RiSEventFacade getFacade(){//PAULO
+		return facade;//PAULO
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					RiSEEventLoginScreen frame = new RiSEEventLoginScreen();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public RiSEEventLoginScreen() {
+		
+		//PASSO1
+		OkButtonAction okAction = new OkButtonAction();//PAULO
+		CancelButtonAction cancelAction = new CancelButtonAction();//PAULO
+		
+		
+		RiSEEventLoginScreen.facade = RiSEventFacade.getInstance();
+		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel(new BorderLayout());
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(6, 6, 438, 266);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblImage = new JLabel("");
+		lblImage.setBounds(16, 23, 399, 60);
+		ImageIcon image = new ImageIcon(getClass().getResource("/images/riseLabs.png"));
+		Image imag = image.getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH);
+		lblImage.setIcon(new ImageIcon(imag));
+		panel.add(lblImage);
+		
+		JLabel lblLogin = new JLabel("Login:");
+		lblLogin.setBounds(57, 130, 61, 16);
+		panel.add(lblLogin);
+		
+		JLabel lblPassword = new JLabel("Password:");
+		lblPassword.setBounds(39, 171, 79, 16);
+		panel.add(lblPassword);
+		
+		logintextField = new JTextField();
+		logintextField.setBounds(111, 124, 134, 28);
+		panel.add(logintextField);
+		logintextField.setColumns(10);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(111, 165, 134, 28);
+		panel.add(passwordField);
+		
+		JButton btnOk = new JButton("OK");
+		btnOk.setBounds(275, 125, 117, 29);
+		panel.add(btnOk);
+		
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.setBounds(275, 166, 117, 29);
+		panel.add(btnCancel);
+		
+		
+		panel.setVisible(true);
+		
+		//PASSO 2//PAULO
+		btnOk.addActionListener(okAction);//PAULO
+		btnCancel.addActionListener(cancelAction);//PAULO
+
+	}
+	
+	//PASSO 3
+		private class OkButtonAction  implements ActionListener{ //PAULO
+
+			@Override
+			public void actionPerformed(ActionEvent e) {//PAULO
+				
+				int idUser = Integer.parseInt(logintextField.getText());//PAULO
+				String password = String.copyValueOf(passwordField.getPassword());//PAULO
+				
+				try {//PAULO
+					if(RiSEEventLoginScreen.facade.checkLogin(idUser, password) == true){//PAULO
+						setVisible(false);//PAULO
+						RiSEEventMainScreenP.getInstanceRiSEEventMainScreenP().setVisible(true);//PAULO
+						setUsuarioLogado(idUser);
+					}else{//PAULO
+						JOptionPane.showMessageDialog(null,//PAULO
+								"Problems with your password or login!", "Erro",//PAULO
+								JOptionPane.INFORMATION_MESSAGE);//PAULO
+					}//PAULO
+						
+				} catch (RepositoryException e1) {//PAULO
+					// TODO Auto-generated catch block
+					e1.printStackTrace();//PAULO
+				}//PAULO
+				
+				
+//				
+				
+				
+			}//PAULO
+			public void setUsuarioLogado(int id){
+				try {
+					usuarioLogado = RiSEEventLoginScreen.facade.searchUser(id);
+				} catch (UserNotFoundException | RepositoryException
+						| UserAlreadyInsertedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		//PAULO
+		private class CancelButtonAction  implements ActionListener{ //PAULO
+			//PAULO
+			@Override//PAULO
+			public void actionPerformed(ActionEvent e) {
+				
+				dispose();
+				
+				
+			}
+		}
+}

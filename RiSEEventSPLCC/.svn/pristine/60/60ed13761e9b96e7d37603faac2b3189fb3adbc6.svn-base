@@ -1,0 +1,5 @@
+package rise.splcc.table;
+
+public class PaymentTableModelRender {
+
+}

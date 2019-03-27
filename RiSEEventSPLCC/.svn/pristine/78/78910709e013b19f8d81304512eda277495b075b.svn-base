@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<featureModel chosenLayoutAlgorithm="1">
+		<struct>
+			<and abstract="true" mandatory="true" name="RiseEventFeatures">
+				<and abstract="true" mandatory="true" name="User">
+					<feature name="Speaker"/>
+					<and name="Organizer">
+						<feature name="GeneralChair"/>
+						<feature name="ProgramChair"/>
+						<feature name="WorkshopChair"/>
+						<feature name="TutorialChair"/>
+						<feature name="ProceedingsChair"/>
+						<feature name="PanelChair"/>
+					</and>
+					<feature name="Reviewer"/>
+				</and>
+				<or abstract="true" mandatory="true" name="Registration">
+					<feature mandatory="true" name="RegistrationUserActivity"/>
+					<feature mandatory="true" name="RegistrationSpeakerActivity"/>
+					<feature mandatory="true" name="RegistrationOrganizerActivity"/>
+				</or>
+				<or abstract="true" mandatory="true" name="Activity">
+					<feature mandatory="true" name="ActivityWorkshop"/>
+					<feature mandatory="true" name="ActivityPainel"/>
+					<feature mandatory="true" name="ActivityTutorial"/>
+					<feature mandatory="true" name="ActivityMinicurso"/>
+				</or>
+				<and abstract="true" name="Reports">
+					<feature name="ReportsFrequencyperEvent"/>
+					<feature name="ReportsFrequencyperActivity"/>
+					<feature name="ReportsListofAuthors"/>
+				</and>
+				<and abstract="true" name="EventReport">
+					<feature name="EventImportantDates"/>
+					<feature name="EventProgram"/>
+				</and>
+				<feature name="Receipt"/>
+				<and abstract="true" name="Payment">
+					<feature name="PaymentCartao"/>
+					<feature name="PaymentDeposito"/>
+					<feature name="PaymentAvista"/>
+				</and>
+				<and abstract="true" name="Notification">
+					<feature name="NotificationsDeadline"/>
+					<feature name="NotificationsAceptanceRejection"/>
+					<feature name="NotificationsPaperAssignemnt"/>
+				</and>
+				<or abstract="true" name="Submission">
+					<and mandatory="true" name="SubmissionCompleta">
+						<alt abstract="true" mandatory="true" name="Review">
+							<feature mandatory="true" name="ReviewRoundofReview"/>
+							<feature mandatory="true" name="ReviewSimpleReview"/>
+						</alt>
+						<and abstract="true" mandatory="true" name="Assignment">
+							<alt abstract="true" mandatory="true" name="AssignmentIndications">
+								<feature mandatory="true" name="AssignmentChairindication"/>
+								<feature mandatory="true" name="Assignmentautomatic"/>
+								<feature mandatory="true" name="AssignmentPreferenceindication"/>
+							</alt>
+							<alt abstract="true" name="Conflicto">
+								<feature mandatory="true" name="ConflictofinterestAutomatic"/>
+								<feature mandatory="true" name="ConflictofinterestManual"/>
+							</alt>
+						</and>
+					</and>
+					<feature mandatory="true" name="SubmissionParcial"/>
+					<feature mandatory="true" name="InsertAuthors"/>
+				</or>
+				<and abstract="true" name="CheckingCopy">
+					<feature name="CheckingCopyAtestado"/>
+					<feature name="CheckingCopyCertificado"/>
+				</and>
+				<feature name="BugTrack"/>
+			</and>
+		</struct>
+		<constraints>
+			<rule>
+				<imp>
+					<var>Speaker</var>
+					<var>RegistrationSpeakerActivity</var>
+				</imp>
+			</rule>
+			<rule>
+				<imp>
+					<var>Payment</var>
+					<var>Receipt</var>
+				</imp>
+			</rule>
+		</constraints>
+		<calculations Auto="true" Constraints="true" Features="true" Redundant="true" Tautology="true"/>
+		<comments/>
+		<featureOrder userDefined="false"/>
+	</featureModel>

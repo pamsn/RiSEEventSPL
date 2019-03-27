@@ -1,0 +1,52 @@
+//#if ${OrganizerGeneralChair} == "T" or ${OrganizerProgramChair} == "T" or ${OrganizerWorkshopChair} == "T" or ${OrganizerTutorialChair} == "T" or ${OrganizerProceedingsChair} == "T" or ${OrganizerPanelChair} == "T" 
+package rise.splcc.data;
+
+public class Organizer extends User{
+
+	private int idActivity;
+	public enum TypeOrganizer{
+		//#if ${OrganizerGeneralChair} == "T"
+		GeneralChair, 
+		//#endif
+		//#if ${OrganizerProgramChair} == "T"
+		ProgramChair, 
+		//#endif
+		//#if ${OrganizerWorkshopChair} == "T"
+		WorkshopChair, 
+		//#endif
+		//#if ${OrganizerTutorialChair} == "T"
+		TutorialChair,
+		//#endif
+		//#if ${OrganizerProceedingsChair} == "T"
+		ProceedingsChair,
+		//#endif
+		//#if ${OrganizerPanelChair} == "T"
+		PanelChair
+		//#endif
+	}
+	private TypeOrganizer typeOrganizer;
+	
+	public TypeOrganizer getTypeOrganizer() {
+		return typeOrganizer;
+	}
+
+	public void setTypeOrganizer(TypeOrganizer typeOrganizer) {
+		this.typeOrganizer = typeOrganizer;
+	}
+
+	public int getIdActivity() {
+		return idActivity;
+	}
+
+	public void setIdActivity(int idActivity) {
+		this.idActivity = idActivity;
+	}
+
+	public String toString(){
+		//return "\nIdUser:" + getIdUser() + "\nName:" + getNameUser() + "\nEmail:" + getEmail() + "\nType:" + typeOrganizer.name() + "\nFiliation:" + getFiliation();
+		return super.toString() + "\nType:" + typeOrganizer.name();
+	}
+	
+	
+}
+//#endif

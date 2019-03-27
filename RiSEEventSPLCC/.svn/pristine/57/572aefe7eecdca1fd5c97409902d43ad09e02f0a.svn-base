@@ -1,0 +1,591 @@
+package rise.splcc.facade;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.mail.EmailException;
+
+import rise.splcc.business.ActivityControl;
+
+
+import rise.splcc.business.ActivityUserControl;
+
+import rise.splcc.business.AssignmentControl;
+
+
+
+import rise.splcc.business.EventControl;
+
+
+
+import rise.splcc.business.RegistrationControl;
+
+import rise.splcc.business.ReviewControl;
+
+
+
+
+
+import rise.splcc.business.SubmissionControl;
+
+import rise.splcc.business.SubmissionUserControl;
+import rise.splcc.business.UserControl;
+import rise.splcc.data.Activity;
+
+
+import rise.splcc.data.ActivityUser;
+
+import rise.splcc.data.Assignment;
+
+
+
+import rise.splcc.data.Event;
+
+
+
+import rise.splcc.data.Registration;
+
+import rise.splcc.data.Review;
+
+
+
+
+import rise.splcc.data.Submission;
+
+
+import rise.splcc.data.SubmissionUser;
+import rise.splcc.data.User;
+
+import rise.splcc.exception.ActivityAlreadyInsertedException;
+import rise.splcc.exception.ActivityNotFoundException;
+
+
+
+import rise.splcc.exception.ActivityUserAlreadyInsertedException;
+import rise.splcc.exception.ActivityUserNotFoundException;
+
+import rise.splcc.exception.AssignmentAlreadyInsertedException;
+import rise.splcc.exception.AssignmentNotFoundException;
+
+
+
+import rise.splcc.exception.EventAlreadyInsertedException;
+import rise.splcc.exception.EventNotFoundException;
+
+
+
+import rise.splcc.exception.RegistrationAlreadyInsertedException;
+import rise.splcc.exception.RegistrationNotFoundException;
+import rise.splcc.exception.RepositoryException;
+
+import rise.splcc.exception.ReviewAlreadyInsertedException;
+import rise.splcc.exception.ReviewNotFoundException;
+
+
+
+
+import rise.splcc.exception.SubmissionAlreadyInsertedException;
+
+
+
+import rise.splcc.exception.SubmissionNotFoundException;
+
+import rise.splcc.exception.SubmissionUserAlreadyInsertedException;
+import rise.splcc.exception.UserAlreadyInsertedException;
+import rise.splcc.exception.UserNotFoundException;
+
+import rise.splcc.repository.ActivityRepository;
+import rise.splcc.repository.ActivityRepositoryBDR;
+
+import rise.splcc.repository.ActivityUserRepository;
+import rise.splcc.repository.ActivityUserRepositoryBDR;
+
+import rise.splcc.repository.AssignmentRepository;
+import rise.splcc.repository.AssignmentRepositoryBDR;
+
+
+
+import rise.splcc.repository.EventRepository;
+import rise.splcc.repository.EventRepositoryBDR;
+
+
+
+import rise.splcc.repository.RegistrationRepository;
+import rise.splcc.repository.RegistrationRepositoryBDR;
+
+import rise.splcc.repository.ReviewRepository;
+import rise.splcc.repository.ReviewRepositoryBDR;
+
+
+
+
+
+import rise.splcc.repository.SubmissionRepository;
+import rise.splcc.repository.SubmissionRepositoryBDR;
+
+import rise.splcc.repository.SubmissionUserRepository;
+import rise.splcc.repository.SubmissionUserRepositoryBDR;
+import rise.splcc.repository.UserRepository;
+import rise.splcc.repository.UserRepositoryBDR;
+import rise.splcc.util.Email;
+
+import com.lowagie.text.DocumentException;
+
+
+public class RiSEventFacade {
+
+	private EventControl events;
+
+	private UserControl users;
+
+	
+	
+	
+	
+	private ActivityControl activities;
+	
+	
+	private RegistrationControl registrations;
+	
+	
+	private ActivityUserControl activityUsers;
+	
+	
+	
+	
+	private ReviewControl reviews;
+	
+	
+	private SubmissionControl submissions;
+	
+	private SubmissionUserControl submissionUsers;
+	
+	
+	
+	
+	private AssignmentControl assignments;
+	
+
+	protected static RiSEventFacade instance;
+	
+	public RiSEventFacade(){
+		EventRepository eventRepository = EventRepositoryBDR.getInstance();
+		
+		UserRepository userRepository = UserRepositoryBDR.getInstance();
+		
+		
+		
+		
+		
+		ActivityRepository activityRepository = ActivityRepositoryBDR.getInstance();
+		
+		
+		RegistrationRepository registrationRepository = RegistrationRepositoryBDR.getInstance();
+		
+		
+		ActivityUserRepository activityUserRepository = ActivityUserRepositoryBDR.getInstance();
+		
+		
+		
+		
+		ReviewRepository reviewRepository = ReviewRepositoryBDR.getInstance();
+		
+		
+		SubmissionRepository submissionRepository = SubmissionRepositoryBDR.getInstance();
+		
+		SubmissionUserRepository submissionUserRepository = SubmissionUserRepositoryBDR.getInstance();
+		
+		
+		
+		
+		AssignmentRepository assignmentRepository = AssignmentRepositoryBDR.getInstance();
+		
+		
+		events = new EventControl(eventRepository);
+		
+		users = new UserControl(userRepository);
+		
+		
+		
+		
+		
+		activities = new ActivityControl(activityRepository);
+		
+		
+		registrations = new RegistrationControl(registrationRepository);
+		
+		
+		activityUsers = new ActivityUserControl(activityUserRepository);
+		
+		
+		
+		
+		reviews = new ReviewControl(reviewRepository);
+		
+		
+		submissions = new SubmissionControl(submissionRepository);
+		
+		submissionUsers = new SubmissionUserControl(submissionUserRepository);
+		
+		
+		
+		
+		assignments = new AssignmentControl(assignmentRepository);
+		
+		
+	}
+	
+	public static RiSEventFacade getInstance()  {
+		if (RiSEventFacade.instance == null) {
+			RiSEventFacade.instance = new RiSEventFacade();
+		}
+		return RiSEventFacade.instance;
+	}
+	
+	//EVENT
+	
+	public void insertEvent(Event event) throws EventAlreadyInsertedException, RepositoryException{
+		this.events.insert(event);
+	}
+	
+	public void removeEvent(int idEvent) throws EventNotFoundException, RepositoryException, EventAlreadyInsertedException{
+		events.remove(idEvent);  
+	}
+	
+	public void updateEvent(Event event) throws EventNotFoundException, RepositoryException, EventAlreadyInsertedException{
+		events.update(event);
+	}
+	
+	public List<Event> getEvents() throws RepositoryException{
+		return events.getEvents();
+	}
+	
+	public Event searchEvent(int idEvent) throws EventNotFoundException, RepositoryException, EventAlreadyInsertedException{
+		return events.search(idEvent);
+	}
+	
+	public int getEventLastId() throws RepositoryException{
+		return events.getEventLastId();
+	}
+	
+	public int getEventIdByName(String eventName) throws RepositoryException{
+		return events.getEventIdByName(eventName);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//USER
+	
+	public void insertUser(User user) throws UserAlreadyInsertedException, RepositoryException{
+		this.users.insert(user);
+	}
+	
+	public void removeUser(int idUser) throws UserNotFoundException, RepositoryException, UserAlreadyInsertedException{
+		users.remove(idUser);  
+	}
+	
+	public void updateUser(User user) throws UserNotFoundException, RepositoryException, UserAlreadyInsertedException{
+		users.update(user);
+	}
+	
+	public List<User> getUsers() throws RepositoryException{
+		return users.getUsers();
+	}
+	
+	public User searchUser(int idUser) throws UserNotFoundException, RepositoryException, UserAlreadyInsertedException{
+		return users.search(idUser);
+	}
+
+	
+	public boolean checkLogin(int idUser, String password) throws RepositoryException{
+		return users.checkLogin(idUser, password);
+	}
+	
+	public int getUserIdByName(String userName) throws RepositoryException{
+		return users.getUserIdByName(userName);
+	}
+	
+	
+	
+	//SPEAKER
+	
+	//REVIEWER
+	
+	
+	//ACTIVITY
+	
+	public void insertActivity(Activity activity) throws ActivityAlreadyInsertedException, RepositoryException{
+		activities.insert(activity);
+	}
+
+	public void removeActivity(int idActivity) throws ActivityNotFoundException, RepositoryException, ActivityAlreadyInsertedException{
+		activities.remove(idActivity);  
+	}
+
+	public void updateActivity(Activity activity) throws ActivityNotFoundException, RepositoryException, ActivityAlreadyInsertedException{
+		activities.update(activity);
+	}
+
+	public List<Activity> getActivities() throws RepositoryException{
+		return activities.getActivities();
+	}
+
+	public Activity searchActivity(int idActivity) throws ActivityNotFoundException, RepositoryException, ActivityAlreadyInsertedException{
+		return activities.search(idActivity);
+	} 
+	
+	public int getActivityLastId() throws RepositoryException{
+		return activities.getActivityLastId();
+	}
+	
+	public int getActivityIdByName(String activityName) throws RepositoryException{
+		return activities.getActivityIdByName(activityName);
+	}
+	
+	public List<Activity> getActivitiesByEvent(int idEvent) throws RepositoryException{
+		return activities.getActivitiesByEvent(idEvent);
+	}
+	
+	public float getEventMainTrackValue(int idEvent) throws RepositoryException{
+		return activities.getEventMainTrackValue(idEvent);
+	}
+	
+	public int getActivityMainTrackId(int idEvent) throws RepositoryException{
+		return activities.getActivityMainTrackId(idEvent);
+	}
+	
+	public int getEventbyActivity(int idActivity) throws RepositoryException{
+		return activities.getEventbyActivity(idActivity);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	//ORGANIZER
+	
+	
+	
+	
+	//ACTIVITYSPEAKER
+	
+	
+	
+	
+	//ACTIVITYORGANIZER
+	
+	
+	
+	
+	
+	//ACTIVITYUSER
+	
+	public void insertActivityUser(ActivityUser activityUser) throws ActivityUserAlreadyInsertedException, RepositoryException{
+		activityUsers.insert(activityUser);
+	}
+
+	public void removeActivityUser(ActivityUser activityUser) throws ActivityUserNotFoundException, RepositoryException, ActivityUserAlreadyInsertedException{
+		activityUsers.remove(activityUser);  
+	}
+	
+	public List<ActivityUser> getActivitiesUsers() throws RepositoryException{
+		return activityUsers.getActivitiesUsers();
+	}
+	
+	public List<ActivityUser> getActivitiesUsersById(int idActivity) throws RepositoryException{
+		return activityUsers.getActivitiesById(idActivity);
+	}
+	
+	
+	
+	
+	
+	
+	//REGISTRATION
+	
+	public List<Registration> getRegistrations() throws RepositoryException{
+		return registrations.getRegistrations();
+	}
+	
+	public Registration searchRegistration(int idRegistration) throws RegistrationNotFoundException, RepositoryException, RegistrationAlreadyInsertedException{
+		return registrations.search(idRegistration);
+	}
+	
+	public void insertRegistration(Registration registration) throws RegistrationAlreadyInsertedException, RepositoryException{
+		registrations.insert(registration);
+	}
+
+	public void removeRegistration(int idRegistration) throws RegistrationNotFoundException, RepositoryException, RegistrationAlreadyInsertedException{
+		registrations.remove(idRegistration);  
+	}
+
+	public void updateRegistration(Registration registration) throws RegistrationNotFoundException, RepositoryException, RegistrationAlreadyInsertedException{
+		registrations.update(registration);
+	}
+	
+	public int getRegistrationLastId() throws RepositoryException{
+		return registrations.getRegistrationLastId();
+	}
+	public void removeValue(float value, int idRegistration) throws RepositoryException{
+		registrations.removeValue(value, idRegistration);
+	}
+	
+	public void addValue(float value, int idRegistration) throws RepositoryException{
+		registrations.addValue(value, idRegistration);
+	}
+	
+	public int searchRegistration(int idUser, int idEvent) throws RegistrationNotFoundException, RepositoryException{
+		return registrations.search(idUser, idEvent);
+	}
+	
+	
+	//PAYMENT
+	
+	
+	
+	
+	
+	//RECEIPT
+	
+	
+	//REVIEW
+	
+	public void insertReview(Review review) throws RepositoryException, ReviewAlreadyInsertedException{
+		this.reviews.insert(review);
+	}
+	
+	public List<Review> getReviews() throws RepositoryException{
+		return reviews.getReviews();
+	}
+	
+	public int getReviewLastId() throws RepositoryException{
+		return reviews.getReviewLastId();
+	}
+	
+	public void removeReview(int idReview) throws ReviewNotFoundException, RepositoryException, ReviewAlreadyInsertedException{
+		reviews.remove(idReview);  
+	}
+	
+	public void updateReview(Review review) throws ReviewNotFoundException, RepositoryException, ReviewAlreadyInsertedException{
+		reviews.update(review);
+	}
+	
+	public Review searchReview(int idReview) throws ReviewNotFoundException, RepositoryException, ReviewAlreadyInsertedException{
+		return reviews.search(idReview);
+	}
+	
+	public boolean isThereReview(int idReview) throws RepositoryException{
+		return reviews.isThere(idReview);
+	}
+	
+	public void emailRoundNotification (Review review, User user, Email email) throws EmailException{
+		reviews.emailRoundNotification(review, user, email);
+	}
+	
+	public List<String> getReviewsBySubmission(int idSubmission) throws RepositoryException{
+		return reviews.getReviewsBySubmission(idSubmission);
+	}
+	
+	//SUBMISSION
+	
+	public void insertSubmission(Submission submission) throws RepositoryException, SubmissionAlreadyInsertedException{
+		this.submissions.insert(submission);
+	}
+	
+	public List<Submission> getSubmissions() throws RepositoryException{
+		return submissions.getSubmissions();
+	}
+	
+	public int getSubmissionLastId() throws RepositoryException{
+		return submissions.getSubmissionLastId();
+	}
+	
+	public void removeSubmission(int idSubmission) throws SubmissionNotFoundException, RepositoryException, SubmissionAlreadyInsertedException{
+		submissions.remove(idSubmission);  
+	}
+	
+	public void updateSubmission(Submission submission) throws SubmissionNotFoundException, RepositoryException, SubmissionAlreadyInsertedException{
+		submissions.update(submission);
+	}
+	
+	public int getSubmissionIdByTitle(String submissionTitle) throws RepositoryException{
+		return submissions.getSubmissionIdByTitle(submissionTitle);
+	}
+	
+	public Submission searchSubmission(int idSubmission) throws SubmissionNotFoundException, RepositoryException, SubmissionAlreadyInsertedException{
+		return submissions.search(idSubmission);
+	}
+	
+	public void insertAttachment(File attachment, int idActivity) throws RepositoryException, SubmissionAlreadyInsertedException{
+		this.submissions.inserAttachmanet(attachment, idActivity);
+	}
+	
+	public void pdfRecovey(int idSubmission) throws RepositoryException{
+		this.submissions.pdfRecover(idSubmission);
+	}
+	
+	public List<Submission> getSubmissionsByUser(int idUser) throws RepositoryException{
+		return submissions.getSubmissionsByUser(idUser);
+	}
+	
+	//SUBMISSIONUSER
+	
+	public void insertSubmissionUser(SubmissionUser submissionUser) throws SubmissionUserAlreadyInsertedException, RepositoryException{
+		submissionUsers.insert(submissionUser);
+	}
+	
+	//SUBMISSIONAUTHOR
+	
+	//CHECKINGCOPY
+	
+	
+	
+	//AUTHOR
+	
+	//ASSIGNMENT
+	
+	public void insertAssignment(Assignment review) throws RepositoryException, AssignmentAlreadyInsertedException{
+		this.assignments.insert(review);
+	}
+	
+	public void removeAssignment(Assignment assignment) throws AssignmentNotFoundException, RepositoryException, AssignmentAlreadyInsertedException{
+		assignments.remove(assignment);  
+	}
+	
+	public Assignment searchAssignment(Assignment assignment) throws AssignmentNotFoundException, RepositoryException, AssignmentAlreadyInsertedException{
+		return assignments.search(assignment);
+	}
+	
+	public List<Assignment> getAssignments() throws RepositoryException{
+		return assignments.getAssignments();
+	}
+	
+	public void updateAssignment(Assignment assignment) throws AssignmentNotFoundException, RepositoryException, AssignmentAlreadyInsertedException{
+		assignments.update(assignment);
+	}
+	
+	public boolean isThereAssignment(Assignment assignment) throws RepositoryException{
+		return assignments.isThere(assignment);
+	}
+	
+	public void emailNotification (User user, Review review, Email email) throws EmailException{
+		assignments.emailNotification(user, review, email);
+	}
+	
+	//REPORT
+	
+	
+}
